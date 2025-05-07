@@ -38,9 +38,12 @@ mapa28 : string "                                        "
 mapa29 : string "                                        "
 
 main:
-	loadn r0, #319 ; posicao inicial da peca
+	loadn r0, #220 ; posicao inicial da peca
+
 
 	call imprime_mapa
+	
+	call desenha_L
 	halt
 
 ;----------------------------------------------------------
@@ -117,7 +120,115 @@ imprime_linha:
 ;----------------------------------------------------------
 ;Desenhar L
 ;----------------------------------------------------------
-desenha_L
+desenha_L:
+	;r0
+	;r2
+	;r3 r4
+
+	push r1 ;armazena o char
+
+	;posicoes das outras partes
+	push r2
+	push r3
+	push r4
+
+	;valores
+	push r5
+	loadn r5, #40
+	
+	;calculo da posicao dos quadradinhos
+	add r2, r0, r5 ;r2 = r0 + 40
+	add r5, r5, r5 ;r5 = 40 + 40
+	add r3, r0, r5 ;r3 = r0 + 80
+	inc r5 ;r5 = 81
+	add r4, r0, r5
+	
+	loadn r1, #'#'
+	
+	outchar r1, r0
+	outchar r1, r2
+	outchar r1, r3
+	outchar r1, r4
+
+	pop r5
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	
+	rts
+;----------------------------------------------------------
+;FIM desenha L
+;----------------------------------------------------------
+
+;----------------------------------------------------------
+;Delay
+;----------------------------------------------------------
+delay:
+	push r7
+	loadn r7, #6400
+
+	delay_loop:
+		dec r7
+		jnz delay_loop
+	
+	pop r7
+	rts
+;----------------------------------------------------------
+;FIM Delay
+;----------------------------------------------------------
+
+;----------------------------------------------------------
+;apaga_L
+;----------------------------------------------------------
+apaga_L:
+	;r0
+	;r2
+	;r3 r4
+
+	push r1 ;armazena o char
+
+	;posicoes das outras partes
+	push r2
+	push r3
+	push r4
+
+	;valores
+	push r5
+	loadn r5, #40
+	
+	;calculo da posicao dos quadradinhos
+	add r2, r0, r5 ;r2 = r0 + 40
+	add r5, r5, r5 ;r5 = 40 + 40
+	add r3, r0, r5 ;r3 = r0 + 80
+	inc r5 ;r5 = 81
+	add r4, r0, r5
+	
+	loadn r1, #'$'
+	
+	outchar r1, r0
+	outchar r1, r2
+	outchar r1, r3
+	outchar r1, r4
+
+	pop r5
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+;----------------------------------------------------------
+;FIM apaga_L
+;----------------------------------------------------------
+
+;----------------------------------------------------------
+;recalc_pos
+;----------------------------------------------------------
+;recalc_pos:
+
+;----------------------------------------------------------
+;FIM recalc_pos
+;----------------------------------------------------------
+
 	
 
 
