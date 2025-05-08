@@ -135,7 +135,6 @@ imprime_linha:
 	push r1 ;armazena o endereco da string inicial na pilha
 	push r2 ;condicao de parada = fim da tela \0
 	push r3 ;armazena char da linha
-	push r4 ;contador, se 40, entao para	
 	push r5 ;posicao atual da linha
 
 	loadn r2, #'\0'
@@ -150,7 +149,6 @@ imprime_linha:
 
 	;pops
 	pop r5
-	pop r4
 	pop r3
 	pop r2
 	pop r1
