@@ -58,6 +58,8 @@ main:
 ;----------------------------------------------------------
 ;Imprime mapa
 ;----------------------------------------------------------
+;parametros
+;	NENHUM
 imprime_mapa:
 	;Tela: 40x30 (largura x altura)
 	push r1
@@ -92,9 +94,9 @@ imprime_mapa:
 ;-----------------------------------------------------------
 ;Imprime Linha
 ;-----------------------------------------------------------
-;argumentos:
-;r1 = endereco inicial da string
-;r5 = posicao inicial da linha
+;parametros:
+;	r1 = endereco inicial da string
+;	r5 = posicao inicial da linha
 imprime_linha:
 	;pushs
 	push r1 ;armazena o endereco da string inicial na pilha
@@ -229,6 +231,11 @@ desenha_L:
 	mov r5, r4
 	inc r5 ;r5 = r0 + 81 
 
+	;OBS: a posicao da peca e o quadrado de cima
+	;	r0
+	;	X
+	;	X X
+
 	giro_1:
 
 	
@@ -262,6 +269,8 @@ desenha_T:
 ;----------------------------------------------------------
 ;Delay
 ;----------------------------------------------------------
+;parametros
+;	NENHUM
 delay:
 	push r7
 	loadn r7, #6400
@@ -279,10 +288,9 @@ delay:
 ;----------------------------------------------------------
 ;apaga_L
 ;----------------------------------------------------------
+;parametros
+;	r0 : posicao da peca
 apaga_L:
-	;r0
-	;r2
-	;r3 r4
 
 	push r1 ;armazena o char
 
@@ -323,6 +331,8 @@ apaga_L:
 ;----------------------------------------------------------
 ;recalc_pos
 ;----------------------------------------------------------
+;parametros
+;	r0 : posicao da peca
 recalc_pos:
 	push r1 ;tecla apertada
 	push r2 ;esquerda
@@ -350,6 +360,8 @@ recalc_pos:
 ;----------------------------------------------------------
 ;mv_esq
 ;----------------------------------------------------------
+;parametros
+;	r0 : posicao da peca
 mv_esq:
 	push r1 ;r1 = 40
 	push r2	;r2 usado para verificar qual e a peca
@@ -385,6 +397,8 @@ mv_esq:
 ;----------------------------------------------------------
 ;mv_dir
 ;----------------------------------------------------------
+;parametros
+;	r0 : posicao da peca
 mv_dir:
 	push r1 ;r1 = 40
 	push r2 ;r2 para verificar qual peca
@@ -431,6 +445,8 @@ mv_dir:
 ;----------------------------------------------------------
 ;mv_baixo
 ;----------------------------------------------------------
+;parametros
+;	r0 : posicao da peca
 mv_baixo:
 	push r2 ;r2 para verificar qual peca
 	push r3 ;usado para identificar a borda de baixo
@@ -476,6 +492,8 @@ mv_baixo:
 ;----------------------------------------------------------
 ;desce_peca
 ;----------------------------------------------------------
+;parametros
+;	r0 : posicao da peca
 desce_peca:
 	loadn r1, #300
 	call mv_baixo
