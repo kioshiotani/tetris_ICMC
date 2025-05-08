@@ -48,7 +48,7 @@ main:
 	main_loop:
 		call desenha_peca
 		call delay
-		call apaga_peca
+		call apaga_L
 		call recalc_pos
 		dec r1
 		cz desce_peca
@@ -224,18 +224,20 @@ desenha_L:
 	jne giro_1 ;caso falso
 
 	;caso verdadeiro		
-	mov r3, r0
-	dec r3 ; r3 = r0 - 1	
-	mov r4, r0
-	inc r4 ; r4 = r0 + 1
-	loadn r5, #40
-	sub r5, r4, r5 ; r5 = r0 + 1 - 40
+	loadn r3, #40
+	add r3, r3, r0 ;r3 = r0 + 40	
+	loadn r4, #40
+	add r4, r3, r4 ;r4 = r0 + 80	
+	mov r5, r4
+	inc r5 ;r5 = r0 + 81 
 
 	;OBS: a posicao da peca e o quadrado de cima
-	;	     X	
-	;	X r0 X
+	;	r0
+	;	X
+	;	X X
 
 	giro_1:
+
 	
 	outchar r2, r0
 	outchar r2, r3
@@ -282,139 +284,49 @@ delay:
 ;----------------------------------------------------------
 ;FIM Delay
 ;----------------------------------------------------------
-;---------------------------------------------------------
-;apaga_peca
-;---------------------------------------------------------
-;parametos
-;	r0 : posicao da peca
-;	r7 : tipo de peca
-; 		r7 = 0 L
-;		r7 = 1 L invertido
-;		r7 = 2 I
-;		r7 = 3 quadrado
-;		r7 = 4 T
-;	r6 : variacoes dos tipos de peca
-;		r6 = 0 0x giro horario
-;		r6 = 1 1x giro horario
-;		r6 = 2 2x giro horario
-;		r6 = 3 3x giro horario
-
-	
-apaga_peca:
-	;salvando valores dos registradores	
-	push r1 ;para verificar o tipo de peca
-	
-	se_L_apaga:
-	loadn r1, #0
-	cmp r1, r7 ;r0 == 0?
-	jne se_Linv_apaga ;caso falso
-
-	;caso verdadeiro
-	call apaga_L
-	jmp fim_apaga_peca
-
-	se_Linv_apaga:
-	loadn r1, #1
-	cmp r1, r7 ; r0 == 1?
-	jne se_I_apaga ;caso falso
-
-	;caso verdadeiro
-	call apaga_Linv
-	jmp fim_apaga_peca
-
-	se_I_apaga:
-	loadn r1, #2
-	cmp r1, r7 ; r0 == 2?
-	jne se_quad_apaga ;caso falso
-
-	;caso verdadeiro
-	call apaga_I
-	jmp fim_apaga_peca
-
-	se_quad_apaga:
-	loadn r1, #3
-	cmp r1, r7 ; r0 == 3?
-	jne se_T_apaga ;caso falso
-
-	;caso verdadeiro
-	call apaga_quad
-	jmp fim_apaga_peca
-
-	se_T_apaga:
-	call apaga_T
-	
-	fim_apaga_peca:
-		;pops
-		pop r1
-		rts
-;---------------------------------------------------------
-;FIM apaga_peca
-;---------------------------------------------------------
 
 ;----------------------------------------------------------
 ;apaga_L
 ;----------------------------------------------------------
 ;parametros
 ;	r0 : posicao da peca
-;	r6 : variacao da peca
-;		r6 = 0 0x giro horario
-;		r6 = 1 1x giro horario
-;		r6 = 2 2x giro horario
-;		r6 = 3 3x giro horario
 apaga_L:
-	push r1 ;para verificar a quantidade de giro
-	push r2 ;armazena o char de cada quadradinho
-	
-	;para armazenar as posicoes dos outros quadradinhos	
+
+	push r1 ;armazena o char
+
+	;posicoes das outras partes
+	push r2
 	push r3
 	push r4
+
+	;valores
 	push r5
-
-	loadn r2, #'$'	
-
-	giro_0_apaga:
-	loadn r1, #0
-	cmp r1, r6 ;r6 == 0?
-	jne giro_1_apaga ;caso falso
-
-	;caso verdadeiro		
-	mov r3, r0
-	dec r3 ; r3 = r0 - 1	
-	mov r4, r0
-	inc r4 ; r4 = r0 + 1
 	loadn r5, #40
-	sub r5, r4, r5 ; r5 = r0 + 1 - 40
-
-	;OBS: a posicao da peca e o quadrado de cima
-	;	     X	
-	;	X r0 X
-
-	giro_1_apaga:
 	
-	outchar r2, r0
-	outchar r2, r3
-	outchar r2, r4
-	outchar r2, r5
+	;calculo da posicao dos quadradinhos
+	add r2, r0, r5 ;r2 = r0 + 40
+	add r5, r5, r5 ;r5 = 40 + 40
+	add r3, r0, r5 ;r3 = r0 + 80
+	inc r5 ;r5 = 81
+	add r4, r0, r5
 	
-	;fim apaga_L
+	loadn r1, #'$'
+	
+	outchar r1, r0
+	outchar r1, r2
+	outchar r1, r3
+	outchar r1, r4
+
 	pop r5
 	pop r4
 	pop r3
 	pop r2
 	pop r1
+	
 	rts
 ;----------------------------------------------------------
 ;FIM apaga_L
 ;----------------------------------------------------------
-
-apaga_Linv:
-	rts
-apaga_I:
-	rts
-apaga_quad:
-	rts
-apaga_T:
-	rts
 
 ;----------------------------------------------------------
 ;recalc_pos
