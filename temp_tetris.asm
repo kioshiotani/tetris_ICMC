@@ -36,6 +36,39 @@ mapa27 : string "                                        "
 mapa28 : string "                                        " 
 mapa29 : string "                                        "
 
+;copia da tela
+copia_tela0  : string "                                        " 
+copia_tela1  : string "                                        " 
+copia_tela2  : string "                                        " 
+copia_tela3  : string "                                        " 
+copia_tela4  : string "                                        " 
+copia_tela5  : string "                                        " 
+copia_tela6  : string "                                        " 
+copia_tela7  : string "                                        " 
+copia_tela8  : string "                                        " 
+copia_tela9  : string "                                        " 
+copia_tela10 : string "                                        " 
+copia_tela11 : string "                                        " 
+copia_tela12 : string "                                        " 
+copia_tela13 : string "                                        " 
+copia_tela14 : string "                                        " 
+copia_tela15 : string "                                        " 
+copia_tela16 : string "                                        " 
+copia_tela17 : string "                                        " 
+copia_tela18 : string "                                        " 
+copia_tela19 : string "                                        " 
+copia_tela20 : string "                                        " 
+copia_tela21 : string "                                        " 
+copia_tela22 : string "                                        " 
+copia_tela23 : string "                                        " 
+copia_tela24 : string "                                        " 
+copia_tela25 : string "                                        " 
+copia_tela26 : string "                                        " 
+copia_tela27 : string "                                        " 
+copia_tela28 : string "                                        " 
+copia_tela29 : string "                                        "
+
+
 main:
 	loadn r0, #220 ;posicao inicial da peca
 	loadn r7, #0 ;peca inicial = L
@@ -71,7 +104,7 @@ imprime_mapa:
 	loadn r5, #0 ;posicao inicial da primeira linha
 	loadn r2, #40 ;r2 <- 40
 	loadn r3, #1200 ;r3 <- 1200
-	loadn r4, #41 ;r4 <- 41
+	loadn r4, #41 ;r4 <- 41, pois tem o \0 no final de cada linha
 	
 	loop_imprime_mapa:
 		call imprime_linha
@@ -100,21 +133,19 @@ imprime_mapa:
 imprime_linha:
 	;pushs
 	push r1 ;armazena o endereco da string inicial na pilha
-	push r2 ;condicao de parada = fim da tela
+	push r2 ;condicao de parada = fim da tela \0
 	push r3 ;armazena char da linha
 	push r4 ;contador, se 40, entao para	
 	push r5 ;posicao atual da linha
 
-	loadn r2, #40
-	loadn r4, #0
+	loadn r2, #'\0'
 
 	loop_imprime_linha:
 		loadi r3, r1 ;Carrega o char
 		outchar r3, r5	
 		inc r1 ;r1 aponta para o proximo char
-		inc r4 ;incrementa o contador
 		inc r5 ;incrementa a posicao na linha
-		cmp r4, r2 ;verifica condicao de parada se cont = 40
+		cmp r3, r2 ;verifica condicao de parada se \0
 		jne loop_imprime_linha
 
 	;pops
