@@ -1,5 +1,4 @@
 jmp main
-
 ;desenhos
 
 ; $ = quadrado vazio
@@ -38,17 +37,21 @@ mapa28 : string "                                        "
 mapa29 : string "                                        "
 
 main:
-	loadn r0, #220 ; posicao inicial da peca
-	loadn r7, #0 ; peca inicial = L
+	loadn r0, #220 ;posicao inicial da peca
+	loadn r7, #0 ;peca inicial = L
+	loadn r6, #0 ;rotacao inicial 0x giro	
+
+	loadn r1, #300 ;contador para descer peca
 
 	call imprime_mapa
 
 	main_loop:
-		call desenha_L
+		call desenha_peca
 		call delay
 		call apaga_L
 		call recalc_pos
-		call mv_baixo
+		dec r1
+		cz desce_peca
 		jmp main_loop 	
 	halt
 
@@ -124,48 +127,137 @@ imprime_linha:
 ;----------------------------------------------------------
 
 ;----------------------------------------------------------
-;Desenhar L
+;desenha_peca
 ;----------------------------------------------------------
+;parametos
+;	r0 : posicao da peca
+;	r7 : tipo de peca
+; 		r7 = 0 L
+;		r7 = 1 L invertido
+;		r7 = 2 I
+;		r7 = 3 quadrado
+;		r7 = 4 T
+;	r6 : variacoes dos tipos de peca
+;		r6 = 0 0x giro horario
+;		r6 = 1 1x giro horario
+;		r6 = 2 2x giro horario
+;		r6 = 3 3x giro horario
+
+
+desenha_peca:
+	;salvando valores dos registradores	
+	push r1 ;para verificar o tipo de peca
+	
+	se_L:
+	loadn r1, #0
+	cmp r1, r7 ;r0 == 0?
+	jne se_Linv ;caso falso
+
+	;caso verdadeiro
+	call desenha_L
+	jmp fim_desenha_peca
+
+	se_Linv:
+	loadn r1, #1
+	cmp r1, r7 ; r0 == 1?
+	jne se_I ;caso falso
+
+	;caso verdadeiro
+	call desenha_Linv
+	jmp fim_desenha_peca
+
+	se_I:
+	loadn r1, #2
+	cmp r1, r7 ; r0 == 2?
+	jne se_quad ;caso falso
+
+	;caso verdadeiro
+	call desenha_I
+	jmp fim_desenha_peca
+
+	se_quad:
+	loadn r1, #3
+	cmp r1, r7 ; r0 == 3?
+	jne se_T ;caso falso
+
+	;caso verdadeiro
+	call desenha_quad
+	jmp fim_desenha_peca
+
+	se_T:
+	call desenha_T
+	
+	fim_desenha_peca:
+		;pops
+		pop r1
+		rts
+;---------------------------------------------------------
+;FIM desenha_peca
+;---------------------------------------------------------	
+
+;---------------------------------------------------------
+;desenha_L
+;---------------------------------------------------------
+;parametros
+;	r0 : posicao da peca
+;	r6 : variacao da peca
+;		r6 = 0 0x giro horario
+;		r6 = 1 1x giro horario
+;		r6 = 2 2x giro horario
+;		r6 = 3 3x giro horario
 desenha_L:
-	;r0
-	;r2
-	;r3 r4
-
-	push r1 ;armazena o char
-
-	;posicoes das outras partes
-	push r2
+	push r1 ;para verificar a quantidade de giro
+	push r2 ;armazena o char de cada quadradinho
+	
+	;para armazenar as posicoes dos outros quadradinhos	
 	push r3
 	push r4
-
-	;valores
 	push r5
-	loadn r5, #40
-	
-	;calculo da posicao dos quadradinhos
-	add r2, r0, r5 ;r2 = r0 + 40
-	add r5, r5, r5 ;r5 = 40 + 40
-	add r3, r0, r5 ;r3 = r0 + 80
-	inc r5 ;r5 = 81
-	add r4, r0, r5
-	
-	loadn r1, #'#'
-	
-	outchar r1, r0
-	outchar r1, r2
-	outchar r1, r3
-	outchar r1, r4
 
+	loadn r2, #'#'	
+
+	giro_0:
+	loadn r1, #0
+	cmp r1, r6 ;r6 == 0?
+	jne giro_1 ;caso falso
+
+	;caso verdadeiro		
+	loadn r3, #40
+	add r3, r3, r0 ;r3 = r0 + 40	
+	loadn r4, #40
+	add r4, r3, r4 ;r4 = r0 + 80	
+	mov r5, r4
+	inc r5 ;r5 = r0 + 81 
+
+	giro_1:
+
+	
+	outchar r2, r0
+	outchar r2, r3
+	outchar r2, r4
+	outchar r2, r5
+	
+	;fim desenha_L
 	pop r5
 	pop r4
 	pop r3
 	pop r2
 	pop r1
-	
 	rts
+
 ;----------------------------------------------------------
-;FIM desenha L
+;FIM desenha_L
 ;----------------------------------------------------------
+
+desenha_Linv:
+	rts
+desenha_I:
+	rts
+desenha_quad:
+	rts
+desenha_T:
+	rts
+
 
 ;----------------------------------------------------------
 ;Delay
@@ -381,4 +473,14 @@ mv_baixo:
 ;FIM mv_baixo
 ;----------------------------------------------------------
 
+;----------------------------------------------------------
+;desce_peca
+;----------------------------------------------------------
+desce_peca:
+	loadn r1, #300
+	call mv_baixo
+	rts
+;---------------------------------------------------------
+;FIM desce_peca
+;---------------------------------------------------------
 
