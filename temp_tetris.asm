@@ -36,10 +36,14 @@ mapa27 : string "                                        "
 mapa28 : string "                                        " 
 mapa29 : string "                                        "
 
+quads : var #4 ;variavel de retorno do calculo dos quadradinhos de determinada peca
+
 main:
 	loadn r0, #220 ;posicao inicial da peca
 	loadn r7, #0 ;peca inicial = L
-	loadn r6, #0 ;rotacao inicial 0x giro	
+	; r7 = 0-3 L
+	; r7 = 4-7 Linv
+
 
 	loadn r1, #300 ;contador para descer peca
 
@@ -48,7 +52,7 @@ main:
 	main_loop:
 		call desenha_peca
 		call delay
-		call apaga_L
+		call apaga_peca
 		call recalc_pos
 		dec r1
 		cz desce_peca
@@ -134,137 +138,72 @@ imprime_linha:
 ;parametos
 ;	r0 : posicao da peca
 ;	r7 : tipo de peca
-; 		r7 = 0 L
-;		r7 = 1 L invertido
-;		r7 = 2 I
-;		r7 = 3 quadrado
-;		r7 = 4 T
-;	r6 : variacoes dos tipos de peca
-;		r6 = 0 0x giro horario
-;		r6 = 1 1x giro horario
-;		r6 = 2 2x giro horario
-;		r6 = 3 3x giro horario
-
-
 desenha_peca:
-	;salvando valores dos registradores	
-	push r1 ;para verificar o tipo de peca
-	
-	se_L:
-	loadn r1, #0
-	cmp r1, r7 ;r0 == 0?
-	jne se_Linv ;caso falso
-
-	;caso verdadeiro
-	call desenha_L
-	jmp fim_desenha_peca
-
-	se_Linv:
-	loadn r1, #1
-	cmp r1, r7 ; r0 == 1?
-	jne se_I ;caso falso
-
-	;caso verdadeiro
-	call desenha_Linv
-	jmp fim_desenha_peca
-
-	se_I:
-	loadn r1, #2
-	cmp r1, r7 ; r0 == 2?
-	jne se_quad ;caso falso
-
-	;caso verdadeiro
-	call desenha_I
-	jmp fim_desenha_peca
-
-	se_quad:
-	loadn r1, #3
-	cmp r1, r7 ; r0 == 3?
-	jne se_T ;caso falso
-
-	;caso verdadeiro
-	call desenha_quad
-	jmp fim_desenha_peca
-
-	se_T:
-	call desenha_T
-	
-	fim_desenha_peca:
-		;pops
-		pop r1
-		rts
-;---------------------------------------------------------
+	push r5
+	loadn r5, #'#'
+	call des_apag_peca
+	pop r5
+	rts
+;--------------------------------------------------------------------------------------------
 ;FIM desenha_peca
-;---------------------------------------------------------	
+;--------------------------------------------------------------------------------------------
 
-;---------------------------------------------------------
-;desenha_L
-;---------------------------------------------------------
+;--------------------------------------------------------------------------------------------
+;apaga_peca
+;--------------------------------------------------------------------------------------------
 ;parametros
 ;	r0 : posicao da peca
-;	r6 : variacao da peca
-;		r6 = 0 0x giro horario
-;		r6 = 1 1x giro horario
-;		r6 = 2 2x giro horario
-;		r6 = 3 3x giro horario
-desenha_L:
-	push r1 ;para verificar a quantidade de giro
-	push r2 ;armazena o char de cada quadradinho
-	
-	;para armazenar as posicoes dos outros quadradinhos	
-	push r3
-	push r4
+;	r7 : tipo de peca
+apaga_peca:
 	push r5
-
-	loadn r2, #'#'	
-
-	giro_0:
-	loadn r1, #0
-	cmp r1, r6 ;r6 == 0?
-	jne giro_1 ;caso falso
-
-	;caso verdadeiro		
-	mov r3, r0
-	dec r3 ;r3 = r0 - 1
-	mov r4, r0
-	inc r4 ;r4 = r0 + 1
-	loadn r5, #40
-	sub r5, r4, r5 ;r5 = r0 + 1 - 40
-
-	;OBS: a posicao da peca e o quadrado de cima
-	;	      r5
-	;	r3 r0 r4
-
-
-	giro_1:
-
-	
-	outchar r2, r0
-	outchar r2, r3
-	outchar r2, r4
-	outchar r2, r5
-	
-	;fim desenha_L
+	loadn r5, #'$'
+	call des_apag_peca
 	pop r5
+	rts
+;--------------------------------------------------------------------------------------------
+;FIM apaga_peca
+;--------------------------------------------------------------------------------------------
+
+;---------------------------------------------------------
+;des_apag_peca
+;---------------------------------------------------------
+;parametros:
+;	r0 : posicao da peca
+;	r5 : # (desenha) ou $ (apaga)
+;	r7 : tipo de peca
+	des_apag_peca:
+	;para coletar as posicoes dos quadradinhos
+	push r1
+	push r2
+	push r3	
+
+	push r4 ;endereco de memoria das posicoes dos quadradinhos
+
+	call calc_quads	
+
+	loadn r4, #quads
+	inc r4
+	loadi r1, r4
+	inc r4
+	loadi r2, r4
+	inc r4
+	loadi r3, r4		
+
+	outchar r5, r0
+	outchar r5, r1
+	outchar r5, r2
+	outchar r5, r3
+
+	;pops
 	pop r4
 	pop r3
 	pop r2
 	pop r1
 	rts
 
-;----------------------------------------------------------
-;FIM desenha_L
-;----------------------------------------------------------
-
-desenha_Linv:
-	rts
-desenha_I:
-	rts
-desenha_quad:
-	rts
-desenha_T:
-	rts
-
+;---------------------------------------------------------
+;FIM desenha_peca
+;---------------------------------------------------------	
 
 ;----------------------------------------------------------
 ;Delay
@@ -281,51 +220,8 @@ delay:
 	
 	pop r7
 	rts
-;----------------------------------------------------------
+;-----------------------------------------------
 ;FIM Delay
-;----------------------------------------------------------
-
-;----------------------------------------------------------
-;apaga_L
-;----------------------------------------------------------
-;parametros
-;	r0 : posicao da peca
-apaga_L:
-
-	push r1 ;armazena o char
-
-	;posicoes das outras partes
-	push r2
-	push r3
-	push r4
-
-	;valores
-	push r5
-	loadn r5, #40
-	
-	;calculo da posicao dos quadradinhos
-	add r2, r0, r5 ;r2 = r0 + 40
-	add r5, r5, r5 ;r5 = 40 + 40
-	add r3, r0, r5 ;r3 = r0 + 80
-	inc r5 ;r5 = 81
-	add r4, r0, r5
-	
-	loadn r1, #'$'
-	
-	outchar r1, r0
-	outchar r1, r2
-	outchar r1, r3
-	outchar r1, r4
-
-	pop r5
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	
-	rts
-;----------------------------------------------------------
-;FIM apaga_L
 ;----------------------------------------------------------
 
 ;----------------------------------------------------------
@@ -500,5 +396,156 @@ desce_peca:
 	rts
 ;---------------------------------------------------------
 ;FIM desce_peca
+;--------------------------------------------------------
 ;---------------------------------------------------------
+;calc_quads
+;---------------------------------------------------------
+;calcula os quadradinhos de cada peca
+;parametros:
+;	- r0 : posicao da peca
+;	- r7 : tipo de peca
+;retorno
+;	variaveis na memoria
+;	quads[0] <- A	
+;	quads[1] <- B
+;	quads[2] <- C
+;	quads[3] <- D
+;	OBS: r0 = A
 
+calc_quads:
+	push r1 ;auxiliar 
+	push r2 ;para verificar o tipo de peca e enderecar a memoria
+	push r3 ;40
+
+	loadn r3, #40
+
+	verifica_se_L:
+	loadn r2, #3
+	cmp r7, r2
+	jel if_L
+
+	verifica_se_linv:
+	loadn r2, #7
+	cmp r7, r2
+	jel if_Linv
+
+	verifica_se_I:
+	loadn r2, #11
+	cmp r7, r2
+	jel if_I
+	
+	verifica_se_quad:
+	loadn r2, #15
+	cmp r7, r2
+	jel if_quad
+
+	;Peça T------------------------------------------------------
+	
+	jmp fim_calc_quads
+	;Peca L ------------------------------------------------------
+	if_L:
+		loadn r2, #quads ;r2 <- endereco de quads_L
+		
+		;rot_L_0
+			loadn r1, #0
+			cmp r1, r7; r7 == 0?
+			jne rot_L_1 ;caso falso
+
+			;caso verdadeiro
+			;B = A - 1
+			mov r1, r0
+			dec r1
+			inc r2
+			storei r2, r1 ;B = quads_L[1] = r1
+			
+			;C = A + 1
+			mov r1, r0
+			inc r1
+			inc r2
+			storei r2, r1 ;C = quads_L[2] = r1
+
+			;D = A + 1 - 40
+			sub r1, r1, r3
+			inc r2
+			storei r2, r1 ;D = quads_L[3] = r1
+
+			;OBS:
+			;	    D
+			;	B A C
+			jmp fim_calc_quads
+
+		rot_L_1:
+			loadn r1, #1
+			cmp r1, r7; r7 == 1?
+			jne rot_L_2 ;caso falso
+
+			;caso verdadeiro
+			;B = A - 40
+			loadn r1, #40
+			sub r1, r0, r1
+			inc r2
+			storei r2, r1 ;B = quads_L[1] = r1
+
+			;C = A + 40
+			loadn r1, #40
+			add r1, r0, r1
+			inc r2
+			storei r2, r1 ;C = quads_L[2] = r1
+
+			;D = A + 40 + 1
+			inc r1
+			inc r2
+			storei r2, r1 ;C = quads_L[3] = r1
+
+			;OBS:
+			;	B
+			;	A
+			;	C D
+			jmp fim_calc_quads
+
+		rot_L_2:
+			loadn r1, #2
+			cmp r1, r7 ;r7 == 2
+			jne rot_L_3 ;caso falso
+		
+			;caso verdadeiro
+			;B = A + 1
+			mov r1, r0
+			inc r1
+			inc r2
+			storei r2, r1
+
+
+			;C = A - 1
+			mov r1, r0
+			dec r1
+			inc r2
+			storei r2, r1			
+
+			;D = A - 1 + 40
+			add r1, r3, r1
+			inc r2
+			storei r2, r1
+
+			;OBS:
+			;	C A B
+			;	D 
+
+		rot_L_3:
+			jmp fim_calc_quads
+		
+	;FIM Peca L------------------------------------------------------
+
+	if_Linv:
+	if_I:
+	if_quad:
+
+	fim_calc_quads:
+	pop r3
+	pop r2
+	pop r1
+	rts
+
+;---------------------------------------------------------
+;FIM calc_quads
+;---------------------------------------------------------
