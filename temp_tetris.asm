@@ -40,7 +40,7 @@ quads : var #4 ;variavel de retorno do calculo dos quadradinhos de determinada p
 
 main:
 	loadn r0, #220 ;posicao inicial da peca
-	loadn r7, #0 ;peca inicial = L
+	loadn r7, #3 ;peca inicial = L
 	; r7 = 0-3 L
 	; r7 = 4-7 Linv
 
@@ -532,13 +532,38 @@ calc_quads:
 			;	D 
 
 		rot_L_3:
+			;B = A + 40
+			mov r1, r0
+			add r1, r0, r3
+			inc r2
+			storei r2, r1			
+
+			;C = A - 40
+			mov r1, r0
+			sub r1, r1, r3
+			inc r2
+			storei r2, r1			
+		
+			;D = A - 40 - 1
+			dec r1
+			inc r2
+			storei r2, r1			
+		
+			;OBS:
+			;     D	C	
+			;	A
+			;       B
 			jmp fim_calc_quads
 		
 	;FIM Peca L------------------------------------------------------
-
+	;Peca Linv-------------------------------------------------------
 	if_Linv:
+	
+
+	;FIM Peca Linv---------------------------------------------------
 	if_I:
 	if_quad:
+
 
 	fim_calc_quads:
 	pop r3
