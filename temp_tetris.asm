@@ -40,7 +40,7 @@ quads : var #4 ;variavel de retorno do calculo dos quadradinhos de determinada p
 
 main:
 	loadn r0, #220 ;posicao inicial da peca
-	loadn r7, #3 ;peca inicial = L
+	loadn r7, #5 ;peca inicial = L
 	; r7 = 0-3 L
 	; r7 = 4-7 Linv
 
@@ -556,9 +556,68 @@ calc_quads:
 			jmp fim_calc_quads
 		
 	;FIM Peca L------------------------------------------------------
+	
 	;Peca Linv-------------------------------------------------------
 	if_Linv:
-	
+		loadn r2, #quads ;r2 <- endereco de quads_L
+		
+		;rot_Linv_0
+			loadn r1, #4
+			cmp r1, r7 ;r7 == 4?
+			jne rot_Linv_1 ;caso falso
+			
+			;caso verdadeiro
+			;B = A + 1
+			mov r1, r0
+			inc r1
+			inc r2
+			storei r2, r1
+
+			;C = A - 1
+			dec r1
+			dec r1
+			inc r2
+			storei r2, r1
+
+			;D = A - 1 - 40
+			sub r1, r1, r3
+			inc r2
+			storei r2, r1		
+
+			;OBS:
+			;	D
+			;	C A B
+		
+		rot_Linv_1:
+			loadn r1, #5
+			cmp r1, r7 ;r7 == 5?
+			jne rot_Linv_2 ;caso falso
+
+			;caso verdadeiro			
+			;B = A + 40
+			mov r1, r0
+			add r1, r1, r3
+			inc r2
+			storei r2, r1
+
+			;C = A - 40
+			mov r1, r0
+			sub r1, r1, r3
+			inc r2
+			storei r2, r1
+
+			;D = A - 40 + 1
+			inc r1
+			inc r2
+			storei r2, r1			
+
+			;OBS:
+			;	C D
+			;	A
+			;	B
+
+		rot_Linv_2:
+		jmp fim_calc_quads
 
 	;FIM Peca Linv---------------------------------------------------
 	if_I:
