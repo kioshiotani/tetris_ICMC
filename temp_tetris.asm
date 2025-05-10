@@ -40,7 +40,7 @@ quads : var #4 ;variavel de retorno do calculo dos quadradinhos de determinada p
 
 main:
 	loadn r0, #220 ;posicao inicial da peca
-	loadn r7, #14 ;peca inicial
+	loadn r7, #10 ;peca inicial
 	; r7 = 0-3 L
 	; r7 = 4-7 Linv
 	; r7 = 8-9 I
@@ -238,11 +238,13 @@ recalc_pos:
 	push r1 ;tecla apertada
 	push r2 ;esquerda
 	push r3 ;direita	
+	push r4 ;cima (rotacionar)
 
 	inchar r1
 	
 	loadn r2, #'a'
 	loadn r3, #'d'
+	loadn r4, #'w'
 
 	cmp r1, r2
 	ceq mv_esq
@@ -250,6 +252,10 @@ recalc_pos:
 	cmp r1, r3
 	ceq mv_dir
 
+	cmp r1, r4
+	ceq rotacionar
+
+	pop r4
 	pop r3
 	pop r2
 	pop r1
@@ -264,32 +270,53 @@ recalc_pos:
 ;parametros
 ;	r0 : posicao da peca
 mv_esq:
-	push r1 ;r1 = 40
-	push r2	;r2 usado para verificar qual e a peca
-	push r3 ;usado para identificar a borda esquerda
+	push r1 ;auxiliar
+	push r2 ;40
+	push r3 ;15
+	push r4 ;vetor de quads 
 
-	loadn r1, #40
+	loadn r2, #40
+	loadn r3, #15
 
-	;verifica se e L em pe
-	loadn r2, #0
-	cmp r7, r2 ; Se r7 == 0	
-	jeq mv_L_em_pe_esq
-	
-	mv_L_em_pe_esq:
-		loadn r3, #15
-		
-		mod r1, r0, r1
-		cmp r1, r3
-		jeq mv_esq_fim
-	
-		;caso nao esteja na borda do mapa
-		dec r0
 
-	mv_esq_fim:
-		pop r3
-		pop r2
-		pop r1
-		rts
+	call calc_quads ;calcula a posicao de cada quadradinho
+	loadn r4, #quads ;r4 aponta para o vetor dos quadradinhos
+
+	;verificar se A esta na borda
+	mov r1, r0
+	mod r1, r1, r2
+	cmp r1, r3
+	jeq fim_mv_esq
+
+	;B
+	inc r4
+	loadi r1, r4
+	mod r1, r1, r2
+	cmp r1, r3
+	jeq fim_mv_esq
+
+	;C
+	inc r4
+	loadi r1, r4
+	mod r1, r1, r2
+	cmp r1, r3
+	jeq fim_mv_esq
+
+	;D
+	inc r4
+	loadi r1, r4
+	mod r1, r1, r2
+	cmp r1, r3
+	jeq fim_mv_esq	
+
+	dec r0
+
+	fim_mv_esq:
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	rts
 
 ;----------------------------------------------------------
 ;FIM mv_esq
@@ -301,44 +328,54 @@ mv_esq:
 ;parametros
 ;	r0 : posicao da peca
 mv_dir:
-	push r1 ;r1 = 40
-	push r2 ;r2 para verificar qual peca
-	push r3 ;usado para identificar a borda direita
+	push r1 ;auxiliar
+	push r2 ;40
+	push r3 ;15
+	push r4 ;vetor de quads 
 
-	loadn r1, #40	
-
-	;verifica se e L em pe
-	loadn r2, #0
-	cmp r7, r2
-	jeq mv_L_em_pe_dir
-	
-	mv_L_em_pe_dir:
-	push r0 ;calcular a posicao da ponta do L
-	;r0
-	;r2
-	;r3 ;r4
-	
-	;r0 = 81
-	add r0, r0, r1 ; r0 += 40
-	add r0, r0, r1 ; r0 += 40, 
-	inc r0 ; r0++
-
+	loadn r2, #40
 	loadn r3, #24
-	mod r1, r0, r1
-	
-	pop r0 ;recupera o valor original da posicao
 
+
+	call calc_quads ;calcula a posicao de cada quadradinho
+	loadn r4, #quads ;r4 aponta para o vetor dos quadradinhos
+
+	;verificar se A esta na borda
+	mov r1, r0
+	mod r1, r1, r2
 	cmp r1, r3
-	jeq mv_dir_fim
+	jeq fim_mv_dir
 
-	;caso nao esteja na borda direita
+	;B
+	inc r4
+	loadi r1, r4
+	mod r1, r1, r2
+	cmp r1, r3
+	jeq fim_mv_dir
+
+	;C
+	inc r4
+	loadi r1, r4
+	mod r1, r1, r2
+	cmp r1, r3
+	jeq fim_mv_dir
+
+	;D
+	inc r4
+	loadi r1, r4
+	mod r1, r1, r2
+	cmp r1, r3
+	jeq fim_mv_dir	
+
 	inc r0
 
-	mv_dir_fim:
-		pop r3
-		pop r2
-		pop r1
-		rts
+	fim_mv_dir:
+	pop r4
+	pop r3
+	pop r2
+	pop r1
+	rts
+
 ;----------------------------------------------------------
 ;FIM mv_dir
 ;----------------------------------------------------------
@@ -881,6 +918,14 @@ calc_quads:
 ;---------------------------------------------------------
 ;FIM calc_quads
 ;---------------------------------------------------------
+
+;--------------------------------------------------------------------------------------------
+;rotacionar
+;--------------------------------------------------------------------------------------------
+rotacionar:
+;--------------------------------------------------------------------------------------------
+;FIM rotacionr
+;--------------------------------------------------------------------------------------------
 
 
 ;Ideia
