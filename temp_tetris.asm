@@ -40,13 +40,13 @@ quads : var #4 ;variavel de retorno do calculo dos quadradinhos de determinada p
 
 main:
 	loadn r0, #220 ;posicao inicial da peca
-	loadn r7, #7 ;peca inicial = L
+	loadn r7, #8 ;peca inicial
 	; r7 = 0-3 L
 	; r7 = 4-7 Linv
 
 
 	loadn r1, #300 ;contador para descer peca
-
+	
 	call imprime_mapa
 
 	main_loop:
@@ -67,30 +67,35 @@ main:
 imprime_mapa:
 	;Tela: 40x30 (largura x altura)
 	push r1
-	push r5
 	push r2
 	push r3
+	push r6
+	push r7
 
-	loadn r1, #mapa0 ;primeira linha do mapa
-	loadn r5, #0 ;posicao inicial da primeira linha
-	loadn r2, #40 ;r2 <- 40
-	loadn r3, #1200 ;r3 <- 1200
-	loadn r4, #41 ;r4 <- 41
+	loadn r3, #1200 ;condicao de parada do loop
+
+	loadn r7, #0 ;posicao inicial
+	loadn r1, #40 ;para pular para a proxima linha
+
+	loadn r6, #mapa0 ;endereco inicial do mapa
+	loadn r2, #41    ;para pular para a proxima string do mapa, pois string adiciona \0 ao final entao 40 + 1
 	
-	loop_imprime_mapa:
+	imprime_mapa_loop:
 		call imprime_linha
-		add r1, r1, r4 ;apontar para a proxima linha do mapa
-		add r5, r5, r2 ;apontar para a posicao inicial da proxima linha
-		cmp r5, r3 ;verificar se ultrapassou o limite da tela
-		jne loop_imprime_mapa
-	
-	pop r3
-	pop r2
-	pop r5
-	pop r1	
-	rts
+		add r7, r7, r1 ;r7 aponta para a proxima linha da tela
+		cmp r7, r3 ;verifica se chegou ao fim da tela
+		jeq imprime_mapa_loop_sai
+		add r6, r6, r2 ;r6 aponta para a proxima string do mapa
+		jmp imprime_mapa_loop		
 
 
+	imprime_mapa_loop_sai:
+		pop r7
+		pop r6
+		pop r3
+		pop r2
+		pop r1
+		rts
 ;----------------------------------------------------------
 ;Fim imprime_mapa
 ;---------------------------------------------------------
@@ -99,35 +104,33 @@ imprime_mapa:
 ;Imprime Linha
 ;-----------------------------------------------------------
 ;parametros:
-;	r1 = endereco inicial da string
-;	r5 = posicao inicial da linha
+;	r6 = endereco inicial da string
+;	r7 = posicao inicial da linha
 imprime_linha:
-	;pushs
-	push r1 ;armazena o endereco da string inicial na pilha
-	push r2 ;condicao de parada = fim da tela
-	push r3 ;armazena char da linha
-	push r4 ;contador, se 40, entao para	
-	push r5 ;posicao atual da linha
+	push r1
+	push r2
+	push r6
+	push r7
 
-	loadn r2, #40
-	loadn r4, #0
+	loadn r1, #'\0' ;condicao de parada
+	
 
-	loop_imprime_linha:
-		loadi r3, r1 ;Carrega o char
-		outchar r3, r5	
-		inc r1 ;r1 aponta para o proximo char
-		inc r4 ;incrementa o contador
-		inc r5 ;incrementa a posicao na linha
-		cmp r4, r2 ;verifica condicao de parada se cont = 40
-		jne loop_imprime_linha
+	imprime_linha_loop:
+		loadi r2, r6
+		cmp r2, r1
+		jeq imprime_linha_sai_loop
+		outchar r2, r7 
+		inc r6
+		inc r7 
+		jmp imprime_linha_loop
 
-	;pops
-	pop r5
-	pop r4
-	pop r3
-	pop r2
-	pop r1
-	rts
+
+	imprime_linha_sai_loop:
+		pop r7
+		pop r6
+		pop r2
+		pop r1
+		rts
 ;----------------------------------------------------------
 ;Fim imprime linha
 ;----------------------------------------------------------
@@ -171,7 +174,7 @@ apaga_peca:
 ;	r0 : posicao da peca
 ;	r5 : # (desenha) ou $ (apaga)
 ;	r7 : tipo de peca
-	des_apag_peca:
+des_apag_peca:
 	;para coletar as posicoes dos quadradinhos
 	push r1
 	push r2
@@ -559,7 +562,7 @@ calc_quads:
 	
 	;Peca Linv-------------------------------------------------------
 	if_Linv:
-		loadn r2, #quads ;r2 <- endereco de quads_L
+		loadn r2, #quads 
 		
 		;rot_Linv_0
 			loadn r1, #4
@@ -670,7 +673,42 @@ calc_quads:
 		jmp fim_calc_quads
 
 	;FIM Peca Linv---------------------------------------------------
+	;Peca I----------------------------------------------------------
 	if_I:
+		loadn r2, #quads	
+		
+		;rot_I_0
+			loadn r1, #8
+			cmp r1, r7 ;r7 == 8?
+			jne rot_I_1 ;caso falso
+
+			;caso verdadeiro
+			;B = A - 1
+			mov r1, r0
+			dec r1
+			inc r2
+			storei r2, r1
+
+			;C = A + 1
+			mov r1, r0
+			inc r1
+			inc r2
+			storei r2, r1
+	
+			;D = A + 2
+			inc r1
+			inc r2
+			storei r2, r1
+
+			;OBS:
+			;	B A C D
+
+
+		rot_I_1:
+
+		jmp fim_calc_quads	
+	;FIM peca I-----------------------------------------------------	
+
 	if_quad:
 
 
