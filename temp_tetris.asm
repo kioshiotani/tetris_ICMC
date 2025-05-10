@@ -40,10 +40,12 @@ quads : var #4 ;variavel de retorno do calculo dos quadradinhos de determinada p
 
 main:
 	loadn r0, #220 ;posicao inicial da peca
-	loadn r7, #8 ;peca inicial
+	loadn r7, #14 ;peca inicial
 	; r7 = 0-3 L
 	; r7 = 4-7 Linv
-
+	; r7 = 8-9 I
+	; r7 = 10 quad
+	; r7 = 11-14 T 
 
 	loadn r1, #300 ;contador para descer peca
 	
@@ -423,28 +425,140 @@ calc_quads:
 	loadn r3, #40
 
 	verifica_se_L:
-	loadn r2, #3
-	cmp r7, r2
-	jel if_L
+		loadn r2, #3
+		cmp r7, r2
+		jel if_L
 
 	verifica_se_linv:
-	loadn r2, #7
-	cmp r7, r2
-	jel if_Linv
+		loadn r2, #7
+		cmp r7, r2
+		jel if_Linv
 
 	verifica_se_I:
-	loadn r2, #11
-	cmp r7, r2
-	jel if_I
+		loadn r2, #9
+		cmp r7, r2
+		jel if_I
 	
 	verifica_se_quad:
-	loadn r2, #15
-	cmp r7, r2
-	jel if_quad
+		loadn r2, #10
+		cmp r7, r2
+		jeq if_quad
 
-	;Peça T------------------------------------------------------
+	;Peca T-------------------------------------------------------
+	loadn r2, #quads ;r2 <- endereco de quads_L
+
+	;rot_T_0
+		loadn r1, #11
+		cmp r1, r7 ;r7 == 11?
+		jne rot_T_1 ;caso falso
+
+		;caso verdadeiro
+		;B = A - 1
+		mov r1, r0
+		dec r1
+		inc r2
+		storei r2, r1
+
+		;C = A + 1
+		mov r1, r0
+		inc r1
+		inc r2
+		storei r2, r1
+
+		;D = A - 40
+		mov r1, r0
+		sub r1, r1, r3
+		inc r2
+		storei r2, r1		
 	
+		;OBS:
+		;	  D
+		;	B A C 
+
+		rot_T_1:
+		loadn r1, #12
+		cmp r1, r7 ;r7 == 12?
+		jne rot_T_2 ;caso falso
+
+		;caso verdadeiro
+		;B = A - 40
+		mov r1, r0
+		sub r1, r1, r3
+		inc r2
+		storei r2, r1
+
+		;C = A + 40
+		mov r1, r0
+		add r1, r1, r3
+		inc r2
+		storei r2, r1
+			
+		;D = A + 1
+		mov r1, r0
+		inc r1
+		inc r2
+		storei r2, r1
+			
+		;OBS:
+		;	B
+		;	A D
+		;	C
+
+		rot_T_2:
+		loadn r1, #13
+		cmp r1, r7 ;r7 == 13?
+		jne rot_T_3 ;caso falso
+
+		;caso verdadeiro
+		;B = A + 1
+		mov r1, r0
+		inc r1
+		inc r2
+		storei r2, r1
+
+		;C = A - 1
+		mov r1, r0
+		dec r1
+		inc r2
+		storei r2, r1
+
+
+		;D = A + 40
+		mov r1, r0
+		add r1, r1, r3
+		inc r2
+		storei r2, r1
+
+		;OBS:
+		;	C A B
+		;	  D
+
+		rot_T_3:
+		;B = A + 40
+		mov r1, r0
+		add r1, r1, r3
+		inc r2
+		storei r2, r1		
+	
+		;C = A - 40
+		mov r1, r0
+		sub r1, r1, r3
+		inc r2
+		storei r2, r1
+	
+		;D = A - 1
+		mov r1, r0
+		dec r1
+		inc r2
+		storei r2, r1
+
+		;OBS:
+		;	  C
+		;	D A
+		;	  B
+
 	jmp fim_calc_quads
+	;FIM peca T---------------------------------------------------
 	;Peca L ------------------------------------------------------
 	if_L:
 		loadn r2, #quads ;r2 <- endereco de quads_L
@@ -705,12 +819,58 @@ calc_quads:
 
 
 		rot_I_1:
+			;B = A - 40
+			mov r1, r0
+			sub r1, r1, r3
+			inc r2
+			storei r2, r1	
+	
+			;C = A + 40
+			mov r1, r0
+			add r1, r1, r3
+			inc r2
+			storei r2, r1
+
+			;D = A + 40 + 40
+			add r1, r1, r3
+			inc r2
+			storei r2, r1
+						
+			;OBS:
+			;	B
+			;	A
+			;       C
+			;       D 
 
 		jmp fim_calc_quads	
 	;FIM peca I-----------------------------------------------------	
 
+	;peca quad------------------------------------------------------
 	if_quad:
+		;B = A + 1
+		loadn r2, #quads
+		mov r1, r0
+		inc r1
+		inc r2
+		storei r2, r1
 
+		;D = A + 1 + 40
+		add r1, r1, r3
+		inc r2
+		storei r2, r1
+		
+
+		;C = A + 1 + 40 - 1
+		dec r1
+		inc r2
+		storei r2, r1
+
+		;OBS:
+		;	A B
+		;	C D 
+		
+
+	;FIM peca quad--------------------------------------------------
 
 	fim_calc_quads:
 	pop r3
@@ -721,3 +881,7 @@ calc_quads:
 ;---------------------------------------------------------
 ;FIM calc_quads
 ;---------------------------------------------------------
+
+
+;Ideia
+;Mudar a pos de r0 quando girar I
