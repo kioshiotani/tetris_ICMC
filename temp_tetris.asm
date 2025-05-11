@@ -1047,6 +1047,12 @@ rotacionar:
 		storei r6, r1
 		jmp se_I_borda
 
+		;OBS:
+		;
+		;	B A C D
+		;
+		;
+
 		se_I_rotacao_1:
 		loadn r1, #1
 		cmp r1, r5
@@ -1060,9 +1066,43 @@ rotacionar:
 		storei r6, r1
 		jmp se_I_borda
 
+		;OBS:
+		;	    B
+		;	    A
+		;	    C
+		;	    D
+
+
 		se_I_rotacao_2:
+		loadn r1, #2
+		cmp r1, r5
+		jne se_I_rotacao_3 ;caso falso
+		
+		;caso verdadeiro
+		sub r0, r0, r2
+		inc r7
+		inc r1
+		storei r6, r1
+		jmp se_I_borda
 
+		;OBS:
+		;	  
+		;	  
+		;	B A C D  
+		;	  
 
+		se_I_rotacao_3:
+		;caso verdadeiro
+		;mantem r0
+		dec r7
+		loadn r1, #0
+		storei r6, r1
+
+		;OBS:
+		;	  B
+		;	  A
+		;	  C
+		;	  D
 
 		se_I_borda:	
 
