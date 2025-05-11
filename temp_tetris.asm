@@ -1059,12 +1059,30 @@ rotacionar:
 		jne se_I_rotacao_2 ;caso falso
 
 		;caso verdadeiro
+		;verificar se esta na borda do mapa
+		mod r1, r0, r2
+		cmp r1, r3
+		jne se_I_rot_1_bdir ;caso r0 nao esteja na borda esquerda
+
+		;caso esteja
+		inc r0
+		inc r0
+		jmp fim_I_rotacao_1
+
+		se_I_rot_1_bdir: ;verificar se r0 esta na borda direita
+		cmp r1, r4
+		jne fim_I_rotacao_1 ;caso r0 nao esteja na borda direita
+
+		;caso esteja
 		dec r0
-		add r0, r0, r2
-		dec r7
-		inc r1
-		storei r6, r1
-		jmp se_I_borda_esq
+	
+		fim_I_rotacao_1:	
+			dec r0
+			add r0, r0, r2
+			dec r7
+			loadn r1, #2
+			storei r6, r1
+			jmp fim_rotacionar
 	
 		;OBS:
 		;	    B
@@ -1093,31 +1111,34 @@ rotacionar:
 
 		se_I_rotacao_3:
 		;caso verdadeiro
-		;mantem r0
-		dec r7
-		loadn r1, #0
-		storei r6, r1
+		;verificar se esta na borda esquerda do mapa
+		mod r1, r0, r2
+		cmp r1, r3 
+		jne se_I_rot_3_bdir ;verificar se esta na borda direita
+
+		;caso esteja na borda esquerda
+		inc r0
+		jmp fim_I_rotacao_3		
+		
+		se_I_rot_3_bdir:
+		cmp r1, r4
+		jne fim_I_rotacao_3 ;caso nao esteja na borda direita
+		
+		;caso esteja na borda direita
+		dec r0
+		dec r0		
+
+		fim_I_rotacao_3:
+			;mantem r0
+			dec r7
+			loadn r1, #0
+			storei r6, r1
 
 		;OBS:
 		;	  B
 		;	  A
 		;	  C
 		;	  D
-
-
-		se_I_borda_esq:	
-			;verificar se esta na borda esquerda
-			mod r1, r0, r2 ; por algum motivo esta dando 14 quando temos a barra da rotacao 1 na borda esquerda
-			call print_teste
-			cmp r1, r3 ;pos == 15?
-			jne se_I_borda_dir ;caso falso
-			
-			;caso verdadeiro
-			inc r0 
-			jmp fim_rotacionar
-
-			se_I_borda_dir:
-
 
 	fim_rotacionar:
 		pop r6
@@ -1133,12 +1154,9 @@ rotacionar:
 ;--------------------------------------------------------------------------------------------
 
 print_teste:
-	push r1
 	push r2
-	loadn r1, #15
 	loadn r2, #'A'
 	outchar r2, r1
 	pop r2
-	pop r1
 	rts
 
