@@ -37,9 +37,9 @@ mapa28 : string "                                        "
 mapa29 : string "                                        "
 
 quads : var #4 ;variavel de retorno do calculo dos quadradinhos de determinada peca
-rot_I : var #1 ;para armazenar qual rotacao a peca I esta
+atual_rot_I : var #1 ;para armazenar qual rotacao a peca I esta
 
-static rot_I + #0, #0
+static atual_rot_I + #0, #0
 
 main:
 	loadn r0, #220 ;posicao inicial da peca
@@ -515,6 +515,8 @@ calc_quads:
 		;	  D
 		;	B A C 
 
+		jmp fim_calc_quads
+
 		rot_T_1:
 		loadn r1, #12
 		cmp r1, r7 ;r7 == 12?
@@ -543,6 +545,8 @@ calc_quads:
 		;	B
 		;	A D
 		;	C
+
+		jmp fim_calc_quads
 
 		rot_T_2:
 		loadn r1, #13
@@ -573,6 +577,8 @@ calc_quads:
 		;	C A B
 		;	  D
 
+		jmp fim_calc_quads
+
 		rot_T_3:
 		;B = A + 40
 		mov r1, r0
@@ -597,7 +603,7 @@ calc_quads:
 		;	D A
 		;	  B
 
-	jmp fim_calc_quads
+		jmp fim_calc_quads
 	;FIM peca T---------------------------------------------------
 	;Peca L ------------------------------------------------------
 	if_L:
@@ -687,6 +693,8 @@ calc_quads:
 			;OBS:
 			;	C A B
 			;	D 
+	
+			jmp fim_calc_quads
 
 		rot_L_3:
 			;B = A + 40
@@ -744,6 +752,8 @@ calc_quads:
 			;OBS:
 			;	D
 			;	C A B
+
+			jmp fim_calc_quads
 		
 		rot_Linv_1:
 			loadn r1, #5
@@ -773,6 +783,8 @@ calc_quads:
 			;	A
 			;	B
 
+			jmp fim_calc_quads
+
 		rot_Linv_2: 
 			loadn r1, #6
 			cmp r1, r7 ;r7 == 6?
@@ -799,7 +811,8 @@ calc_quads:
 			;OBS:
 			;	B A C
 			;	    D
-
+	
+			jmp fim_calc_quads
 
 		rot_Linv_3:
 			;B = A - 40
@@ -824,7 +837,7 @@ calc_quads:
 			;	  A
 			;	D C
 	
-		jmp fim_calc_quads
+			jmp fim_calc_quads
 
 	;FIM Peca Linv---------------------------------------------------
 	;Peca I----------------------------------------------------------
@@ -856,7 +869,8 @@ calc_quads:
 
 			;OBS:
 			;	B A C D
-
+	
+			jmp fim_calc_quads
 
 		rot_I_1:
 			;B = A - 40
@@ -882,7 +896,7 @@ calc_quads:
 			;       C
 			;       D 
 
-		jmp fim_calc_quads	
+			jmp fim_calc_quads	
 	;FIM peca I-----------------------------------------------------	
 
 	;peca quad------------------------------------------------------
@@ -1018,7 +1032,7 @@ rotacionar:
 				jmp fim_rotacionar
 
 	se_I_rotacionar:
-		loadn r6, #rot_I
+		loadn r6, #atual_rot_I
 		loadi r5, r6 ;r5 = rotacao atual de I
 
 		;se_I_rotacao_0
