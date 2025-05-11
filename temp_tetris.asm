@@ -40,7 +40,7 @@ quads : var #4 ;variavel de retorno do calculo dos quadradinhos de determinada p
 
 main:
 	loadn r0, #220 ;posicao inicial da peca
-	loadn r7, #10 ;peca inicial
+	loadn r7, #0 ;peca inicial
 	; r7 = 0-3 L
 	; r7 = 4-7 Linv
 	; r7 = 8-9 I
@@ -922,11 +922,69 @@ calc_quads:
 ;--------------------------------------------------------------------------------------------
 ;rotacionar
 ;--------------------------------------------------------------------------------------------
+;parametros
+;	- r0 : posicao da peca
+;	- r7 : tipo de peca
 rotacionar:
+	push r1 ;auxiliar
+	push r2	;40
+	push r3	;15
+	push r4 ;24
+
+	;para verificar se a peca esta na borda
+	loadn r2, #40
+	loadn r3, #15
+	loadn r4, #24
+
+	;verificar se L
+	loadn r1, #3
+	cmp r7, r1
+	jel se_L_rotacionar
+
+	jmp fim_rotacionar 
+
+	se_L_rotacionar:
+		;verifica se L esta na ultima rotacao
+		cmp r7, r1
+		jeq L_rotacao_reset
+		
+		;caso contrario
+		inc r7		
+		jmp se_L_borda
+
+		L_rotacao_reset:
+			loadn r7, #0	
+
+		se_L_borda: ;verificar se L esta na borda
+			;se esta na borda esquerda
+			mod r1, r0, r2
+			cmp r1, r3
+			jne se_L_borda_dir
+
+			;caso esteja na borda esquerda
+			inc r0
+			jmp fim_rotacionar
+
+			se_L_borda_dir:
+			cmp r1, r4
+			jne fim_rotacionar
+			
+			;caso esteja na borda direita
+			dec r0
+			jmp fim_rotacionar
+
+	
+
+	fim_rotacionar:
+		pop r4
+		pop r3
+		pop r2
+		pop r1
+		rts
+
 ;--------------------------------------------------------------------------------------------
 ;FIM rotacionr
 ;--------------------------------------------------------------------------------------------
-
 
 ;Ideia
 ;Mudar a pos de r0 quando girar I
