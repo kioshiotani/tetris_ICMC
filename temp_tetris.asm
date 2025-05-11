@@ -1045,7 +1045,7 @@ rotacionar:
 		inc r7
 		inc r1
 		storei r6, r1
-		jmp se_I_borda
+		jmp fim_rotacionar
 
 		;OBS:
 		;
@@ -1064,8 +1064,8 @@ rotacionar:
 		dec r7
 		inc r1
 		storei r6, r1
-		jmp se_I_borda
-
+		jmp se_I_borda_esq
+	
 		;OBS:
 		;	    B
 		;	    A
@@ -1083,7 +1083,7 @@ rotacionar:
 		inc r7
 		inc r1
 		storei r6, r1
-		jmp se_I_borda
+		jmp fim_rotacionar
 
 		;OBS:
 		;	  
@@ -1104,7 +1104,20 @@ rotacionar:
 		;	  C
 		;	  D
 
-		se_I_borda:	
+
+		se_I_borda_esq:	
+			;verificar se esta na borda esquerda
+			mod r1, r0, r2 ; por algum motivo esta dando 14 quando temos a barra da rotacao 1 na borda esquerda
+			call print_teste
+			cmp r1, r3 ;pos == 15?
+			jne se_I_borda_dir ;caso falso
+			
+			;caso verdadeiro
+			inc r0 
+			jmp fim_rotacionar
+
+			se_I_borda_dir:
+
 
 	fim_rotacionar:
 		pop r6
@@ -1122,13 +1135,10 @@ rotacionar:
 print_teste:
 	push r1
 	push r2
-	loadn r1, #0
+	loadn r1, #15
 	loadn r2, #'A'
 	outchar r2, r1
 	pop r2
 	pop r1
 	rts
 
-
-;Ideia
-;Mudar a pos de r0 quando girar I
