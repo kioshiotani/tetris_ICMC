@@ -39,6 +39,8 @@ mapa29 : string "                                        "
 quads : var #4 ;variavel de retorno do calculo dos quadradinhos de determinada peca
 rot_I : var #1 ;para armazenar qual rotacao a peca I esta
 
+static rot_I + #0, #0
+
 main:
 	loadn r0, #220 ;posicao inicial da peca
 	loadn r7, #8 ;peca inicial
@@ -47,10 +49,6 @@ main:
 	; r7 = 8-9 I
 	; r7 = 10 quad
 	; r7 = 11-14 T 
-
-	loadn r2, #rot_I
-	loadn r3, #0
-	storei r2, r3 ;iniciar o I com rotacao 0
 
 	loadn r1, #300 ;contador para descer peca
 	
@@ -1023,43 +1021,34 @@ rotacionar:
 		loadn r6, #rot_I
 		loadi r5, r6 ;r5 = rotacao atual de I
 
-		;rot_I_0
+		;se_I_rotacao_0
 		loadn r1, #0
-		cmp r1, r5
-		jne rot_I_1
+		cmp r1, r5 
+		jne se_I_rotacao_1 ;caso falso 
 
+		;caso verdadeiro
 		inc r0
 		inc r7
 		inc r1
 		storei r6, r1
+		jmp se_I_borda
 
-		rot_I_1:
+		se_I_rotacao_1:
 		loadn r1, #1
 		cmp r1, r5
-		jne rot_I_2
+		jne se_I_rotacao_2 ;caso falso
 
+		;caso verdadeiro
 		dec r0
 		add r0, r0, r2
 		dec r7
 		inc r1
 		storei r6, r1
+		jmp se_I_borda
+
+		se_I_rotacao_2:
 
 
-		rot_I_2:
-		loadn r1, #2
-		cmp r1, r5
-		jne rot_I_3
-
-		sub r0, r0, r2
-		inc r7
-		inc r1
-		storei r6, r1
-
-
-		rot_I_3:
-		dec r7
-		loadn r1, #0
-		storei r6, r1
 
 		se_I_borda:	
 
@@ -1075,6 +1064,17 @@ rotacionar:
 ;--------------------------------------------------------------------------------------------
 ;FIM rotacionr
 ;--------------------------------------------------------------------------------------------
+
+print_teste:
+	push r1
+	push r2
+	loadn r1, #0
+	loadn r2, #'A'
+	outchar r2, r1
+	pop r2
+	pop r1
+	rts
+
 
 ;Ideia
 ;Mudar a pos de r0 quando girar I
