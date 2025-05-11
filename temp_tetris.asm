@@ -37,15 +37,20 @@ mapa28 : string "                                        "
 mapa29 : string "                                        "
 
 quads : var #4 ;variavel de retorno do calculo dos quadradinhos de determinada peca
+rot_I : var #1 ;para armazenar qual rotacao a peca I esta
 
 main:
 	loadn r0, #220 ;posicao inicial da peca
-	loadn r7, #0 ;peca inicial
+	loadn r7, #8 ;peca inicial
 	; r7 = 0-3 L
 	; r7 = 4-7 Linv
 	; r7 = 8-9 I
 	; r7 = 10 quad
 	; r7 = 11-14 T 
+
+	loadn r2, #rot_I
+	loadn r3, #0
+	storei r2, r3 ;iniciar o I com rotacao 0
 
 	loadn r1, #300 ;contador para descer peca
 	
@@ -930,6 +935,8 @@ rotacionar:
 	push r2	;40
 	push r3	;15
 	push r4 ;24
+	push r5 ;auxiliar
+	push r6 ;auxiliar
 
 	;para verificar se a peca esta na borda
 	loadn r2, #40
@@ -940,6 +947,16 @@ rotacionar:
 	loadn r1, #3
 	cmp r7, r1
 	jel se_L_rotacionar
+
+	;verificar se Linv
+	loadn r1, #7
+	cmp r7, r1
+	jel se_Linv_rotacionar
+
+	;verificar se I
+	loadn r1, #9
+	cmp r7, r1
+	jel se_I_rotacionar
 
 	jmp fim_rotacionar 
 
@@ -973,9 +990,82 @@ rotacionar:
 			dec r0
 			jmp fim_rotacionar
 
+	se_Linv_rotacionar:
+		;verifica se Linv esta na ultima rotacao
+		cmp r7, r1
+		jeq Linv_rotacao_reset
+
+		;caso contrario
+		inc r7
+		jmp se_Linv_borda
 	
+		Linv_rotacao_reset:
+			loadn r7, #4	
+
+		se_Linv_borda:
+			mod r1, r0, r2 ; r1 = pos mod 40
+			cmp r1, r3 ; r1 == 15?
+			jne se_Linv_borda_dir ;caso falso
+		
+			;caso verdadeiro
+			inc r0
+			jmp fim_rotacionar
+
+			se_Linv_borda_dir:
+				cmp r1, r4 ;r1 == 24?
+				jne fim_rotacionar ;caso falso
+				
+				;caso verdadeiro
+				dec r0
+				jmp fim_rotacionar
+
+	se_I_rotacionar:
+		loadn r6, #rot_I
+		loadi r5, r6 ;r5 = rotacao atual de I
+
+		;rot_I_0
+		loadn r1, #0
+		cmp r1, r5
+		jne rot_I_1
+
+		inc r0
+		inc r7
+		inc r1
+		storei r6, r1
+
+		rot_I_1:
+		loadn r1, #1
+		cmp r1, r5
+		jne rot_I_2
+
+		dec r0
+		add r0, r0, r2
+		dec r7
+		inc r1
+		storei r6, r1
+
+
+		rot_I_2:
+		loadn r1, #2
+		cmp r1, r5
+		jne rot_I_3
+
+		sub r0, r0, r2
+		inc r7
+		inc r1
+		storei r6, r1
+
+
+		rot_I_3:
+		dec r7
+		loadn r1, #0
+		storei r6, r1
+
+		se_I_borda:	
 
 	fim_rotacionar:
+		pop r6
+		pop r5
 		pop r4
 		pop r3
 		pop r2
