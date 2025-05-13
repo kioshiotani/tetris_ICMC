@@ -43,7 +43,7 @@ static atual_rot_I + #0, #0
 
 main:
 	loadn r0, #220 ;posicao inicial da peca
-	loadn r7, #8 ;peca inicial
+	loadn r7, #11 ;peca inicial
 	; r7 = 0-3 L
 	; r7 = 4-7 Linv
 	; r7 = 8-9 I
@@ -970,6 +970,12 @@ rotacionar:
 	cmp r7, r1
 	jel se_I_rotacionar
 
+	;verificar se T
+	loadn r1, #11
+	cmp r7, r1
+	jeg se_T_rotacionar
+
+
 	jmp fim_rotacionar 
 
 	se_L_rotacionar:
@@ -1140,6 +1146,43 @@ rotacionar:
 		;	  C
 		;	  D
 
+		jmp fim_rotacionar
+
+	se_T_rotacionar:
+		;verifica se T esta na ultima rotacao
+		inc r1
+		inc r1
+		inc r1
+		cmp r7, r1
+		jeq T_rotacao_reset
+
+		;caso contrario
+		inc r7
+		jmp se_T_borda
+	
+		T_rotacao_reset:
+			loadn r7, #11
+
+		se_T_borda:
+			mod r1, r0, r2 ; r1 = pos mod 40
+			cmp r1, r3 ; r1 == 15?
+			jne se_T_borda_dir ;caso falso
+		
+			;caso verdadeiro
+			inc r0
+			jmp fim_rotacionar
+
+			se_T_borda_dir:
+				cmp r1, r4 ;r1 == 24?
+				jne fim_rotacionar ;caso falso
+				
+				;caso verdadeiro
+				dec r0
+				jmp fim_rotacionar
+
+
+
+
 	fim_rotacionar:
 		pop r6
 		pop r5
@@ -1152,11 +1195,4 @@ rotacionar:
 ;--------------------------------------------------------------------------------------------
 ;FIM rotacionr
 ;--------------------------------------------------------------------------------------------
-
-print_teste:
-	push r2
-	loadn r2, #'A'
-	outchar r2, r1
-	pop r2
-	rts
 
