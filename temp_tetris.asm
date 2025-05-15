@@ -38,6 +38,8 @@ mapa29 : string "                                        "
 
 quads : var #4 ;variavel de retorno do calculo dos quadradinhos de determinada peca
 atual_rot_I : var #1 ;para armazenar qual rotacao a peca I esta
+quads_ocupados : var #200 ;quais quadrados da grade estao ocupados, onde se 1 entao ocupado e 0 caso contrario
+;fazer busca binaria para procurar o elemento
 
 static atual_rot_I + #0, #0
 
