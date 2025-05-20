@@ -41,17 +41,23 @@ atual_rot_I : var #1 ;para armazenar qual rotacao a peca I esta
 quads_ocupados : var #200 ;quais quadrados da grade estao ocupados, onde se 1 entao ocupado e 0 caso contrario
 ;fazer busca binaria para procurar o elemento
 
+pos : var #1
+pos_ant : var #1
+t_peca : var #1
+
+static pos, #220 ;posicao inicial da peca
+static pos_ant, #220 ;posicao inicial da peca
+static t_peca, #4 ;peca inicial
+; t_peca
+;	0-3 L
+;	4-7 Linv
+;	8-9 I
+;	10 quad
+;	11-14 T
+
 static atual_rot_I + #0, #0
 
 main:
-	loadn r0, #220 ;posicao inicial da peca
-	loadn r7, #8 ;peca inicial
-	; r7 = 0-3 L
-	; r7 = 4-7 Linv
-	; r7 = 8-9 I
-	; r7 = 10 quad
-	; r7 = 11-14 T 
-
 	loadn r1, #300 ;contador para descer peca
 	
 	call imprime_mapa
@@ -146,8 +152,8 @@ imprime_linha:
 ;desenha_peca
 ;----------------------------------------------------------
 ;parametos
-;	r0 : posicao da peca
-;	r7 : tipo de peca
+;	pos    : posicao da peca
+;	t_peca : tipo de peca
 desenha_peca:
 	push r5
 	loadn r5, #'#'
@@ -162,8 +168,8 @@ desenha_peca:
 ;apaga_peca
 ;--------------------------------------------------------------------------------------------
 ;parametros
-;	r0 : posicao da peca
-;	r7 : tipo de peca
+;	pos    : posicao da peca
+;	t_peca : tipo de peca
 apaga_peca:
 	push r5
 	loadn r5, #'$'
@@ -178,14 +184,17 @@ apaga_peca:
 ;des_apag_peca
 ;---------------------------------------------------------
 ;parametros:
-;	r0 : posicao da peca
-;	r5 : # (desenha) ou $ (apaga)
-;	r7 : tipo de peca
+;	pos    : posicao da peca
+;	r5     : # (desenha) ou $ (apaga)
+;	t_peca : tipo da peca
 des_apag_peca:
 	;para coletar as posicoes dos quadradinhos
+	push r0
 	push r1
 	push r2
 	push r3	
+
+	load r0, pos
 
 	push r4 ;endereco de memoria das posicoes dos quadradinhos
 
@@ -209,6 +218,7 @@ des_apag_peca:
 	pop r3
 	pop r2
 	pop r1
+	pop r0
 	rts
 
 ;---------------------------------------------------------
@@ -223,7 +233,6 @@ des_apag_peca:
 delay:
 	push r7
 	loadn r7, #6400
-
 	delay_loop:
 		dec r7
 		jnz delay_loop
@@ -238,7 +247,7 @@ delay:
 ;recalc_pos
 ;----------------------------------------------------------
 ;parametros
-;	r0 : posicao da peca
+;	pos : posicao da peca
 recalc_pos:
 	push r1 ;tecla apertada
 	push r2 ;esquerda
@@ -273,12 +282,15 @@ recalc_pos:
 ;mv_esq
 ;----------------------------------------------------------
 ;parametros
-;	r0 : posicao da peca
+;	pos : posicao da peca
 mv_esq:
+	push r0 ;posicao da peca
 	push r1 ;auxiliar
 	push r2 ;40
 	push r3 ;15
 	push r4 ;vetor de quads 
+
+	load r0, pos
 
 	loadn r2, #40
 	loadn r3, #15
@@ -317,10 +329,15 @@ mv_esq:
 	dec r0
 
 	fim_mv_esq:
+	;atualizar posicao
+	store pos, r0
+
+
 	pop r4
 	pop r3
 	pop r2
 	pop r1
+	pop r0
 	rts
 
 ;----------------------------------------------------------
@@ -331,12 +348,15 @@ mv_esq:
 ;mv_dir
 ;----------------------------------------------------------
 ;parametros
-;	r0 : posicao da peca
+;	pos : posicao da peca
 mv_dir:
+	push r0 ; posicao da peca
 	push r1 ;auxiliar
 	push r2 ;40
 	push r3 ;15
 	push r4 ;vetor de quads 
+
+	load r0, pos
 
 	loadn r2, #40
 	loadn r3, #24
@@ -375,10 +395,14 @@ mv_dir:
 	inc r0
 
 	fim_mv_dir:
+	;atualizar posicao
+	store pos, r0
+
 	pop r4
 	pop r3
 	pop r2
 	pop r1
+	pop r0
 	rts
 
 ;----------------------------------------------------------
@@ -389,12 +413,15 @@ mv_dir:
 ;mv_baixo
 ;----------------------------------------------------------
 ;parametros
-;	r0 : posicao da peca
+;	pos : posicao da peca
 mv_baixo:
+	push r0 ;posicao da peca
 	push r2 ;r2 para verificar qual peca
 	push r3 ;usado para identificar a borda de baixo
 	push r5 ;aux
 	push r4 ;usado para calcular outros quadradinhos das pecas
+	
+	load r0, pos
 
 	;verifica se e L em pe
 	loadn r2, #0
@@ -423,10 +450,15 @@ mv_baixo:
 	add r0, r0, r5 ;r0 += 40 para descer
 
 	mv_baixo_fim:
+		;atualizar posicao
+		store pos, r0
+
+
 		pop r4
 		pop r5	
 		pop r3
 		pop r2
+		pop r0
 		rts
 ;----------------------------------------------------------
 ;FIM mv_baixo
@@ -436,7 +468,8 @@ mv_baixo:
 ;desce_peca
 ;----------------------------------------------------------
 ;parametros
-;	r0 : posicao da peca
+;	pos : posicao da peca
+;	r1 : contador do delay para descer peca
 desce_peca:
 	loadn r1, #300
 	call mv_baixo
@@ -449,8 +482,8 @@ desce_peca:
 ;---------------------------------------------------------
 ;calcula os quadradinhos de cada peca
 ;parametros:
-;	- r0 : posicao da peca
-;	- r7 : tipo de peca
+;	- pos    : posicao da peca
+;	- t_peca : tipo de peca
 ;retorno
 ;	variaveis na memoria
 ;	quads[0] <- A	
@@ -460,9 +493,14 @@ desce_peca:
 ;	OBS: r0 = A
 
 calc_quads:
+	push r0 ;posicao
+	push r7 ;tipo de peca
 	push r1 ;auxiliar 
 	push r2 ;para verificar o tipo de peca e enderecar a memoria
 	push r3 ;40
+
+	load r0, pos
+	load r7, t_peca
 
 	loadn r3, #40
 
@@ -932,6 +970,8 @@ calc_quads:
 	pop r3
 	pop r2
 	pop r1
+	pop r7
+	pop r0
 	rts
 
 ;---------------------------------------------------------
@@ -942,15 +982,22 @@ calc_quads:
 ;rotacionar
 ;--------------------------------------------------------------------------------------------
 ;parametros
-;	- r0 : posicao da peca
-;	- r7 : tipo de peca
+;	- pos    : posicao da peca
+;	- t_peca : tipo de peca
 rotacionar:
+	push r0 ;posicao
 	push r1 ;auxiliar
 	push r2	;40
 	push r3	;15
 	push r4 ;24
 	push r5 ;auxiliar
 	push r6 ;auxiliar
+	push r7 ;tipo de peca
+
+	;carregar posicao e tipo
+	load r0, pos
+	load r7, t_peca	
+
 
 	;para verificar se a peca esta na borda
 	loadn r2, #40
@@ -1069,7 +1116,7 @@ rotacionar:
 		;caso verdadeiro
 		;verificar se esta na borda do mapa
 		mod r1, r0, r2
-		cmp r1, r3
+		cmp r1, r3 ;verificar se esta na borda esquerda
 		jne se_I_rot_1_bdir ;caso r0 nao esteja na borda esquerda
 
 		;caso esteja
@@ -1186,12 +1233,18 @@ rotacionar:
 
 
 	fim_rotacionar:
+		;atualizar posicao e tipo de peca
+		store pos, r0
+		store t_peca, r7
+
+		pop r7
 		pop r6
 		pop r5
 		pop r4
 		pop r3
 		pop r2
 		pop r1
+		pop r0
 		rts
 
 ;--------------------------------------------------------------------------------------------
